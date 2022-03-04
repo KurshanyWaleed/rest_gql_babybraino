@@ -1,0 +1,48 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserQl {
+  _id: String!
+  userName: String!
+  email: String!
+  password: String!
+  babyGender: BabyGenderQL!
+  situation: Situation!
+  location: String!
+}
+
+enum BabyGenderQL {
+  BOY
+  GIRL
+}
+
+enum Situation {
+  EXPECTANT_NEW_BABY
+  PERENT
+  PARENT_AND_EXPECTANT_NEW_BABY
+}
+
+type Query {
+  getUsers: [UserQl!]!
+}
+
+type Mutation {
+  signUp(inputData: inscriptionDto!): Boolean!
+  signIn(login: LogInDto!): String!
+}
+
+input inscriptionDto {
+  userName: String!
+  password: String!
+  situation: Situation!
+  babyGender: BabyGenderQL!
+  babyAge: String!
+  location: String!
+  email: String!
+}
+
+input LogInDto {
+  userName: String!
+  password: String!
+}
