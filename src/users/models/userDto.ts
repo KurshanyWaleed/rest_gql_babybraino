@@ -1,5 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { IsEmail, IsNotEmpty, Length } from "class-validator";
+import { IsEmail, IsEmpty, IsNotEmpty, Length } from "class-validator";
 import { BabyGender, Situation } from "src/utils/enums";
 
 @InputType()

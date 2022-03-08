@@ -10,6 +10,7 @@ type UserQl {
   babyGender: BabyGenderQL!
   situation: Situation!
   location: String!
+  verified: Boolean!
 }
 
 enum BabyGenderQL {

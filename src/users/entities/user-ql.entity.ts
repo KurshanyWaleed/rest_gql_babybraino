@@ -1,5 +1,5 @@
 import { Situation, BabyGender } from "../../utils/enums";
-import { ObjectType, Field, registerEnumType } from "@nestjs/graphql";
+import { ObjectType, Field } from "@nestjs/graphql";
 
 @ObjectType()
 export class UserQl {
@@ -17,4 +17,6 @@ export class UserQl {
   situation: Situation;
   @Field(() => String)
   location: String;
+  @Field(() => Boolean)
+  verified: boolean;
 }

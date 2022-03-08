@@ -1,3 +1,6 @@
+import { AuthService } from "./../../auth/auth.service";
+import { JwtService } from "@nestjs/jwt";
+
 import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "./../../auth/guards/auth.guard";
 import { Model } from "mongoose";
@@ -13,27 +16,45 @@ import { InjectModel } from "@nestjs/mongoose";
 import { User } from "../models/users.model";
 import * as bcrypt from "bcrypt";
 
+import { EmailService } from "./email.service";
+
 @Injectable()
 export class UsersService {
   constructor(
     private readonly configservice: ConfigService,
+    private readonly jwtserv: JwtService,
     private readonly userRepo: UserRepository,
+    private emailService: EmailService,
     @InjectModel("User") private readonly userModel: Model<User>,
   ) {}
+  //!conformation
+  async ProfilVerified(token: string) {
+    const decoded = await this.jwtserv.verify(token);
+
+    return this.userModel.updateOne(
+      { userName: decoded.username },
+      { verified: true },
+    );
+  }
   //! sign Up
   async signUpUserService(userDto: inscriptionDto) {
-    // const saltOrRounds = 10;
-    console.log(this.configservice.get("SALT_OR_ROUNDS"));
     const hashedpassword = await bcrypt.hash(
       userDto.password,
       parseInt(this.configservice.get<string>("SALT_OR_ROUNDS")),
     );
-    console.log(hashedpassword);
+
     userDto.password = hashedpassword;
     let newUser = new this.userModel(userDto);
-    console.log(newUser);
+
     try {
       await newUser.save();
+      const token = this.jwtserv.sign(
+        { username: newUser.userName },
+        { secret: this.configservice.get("SECRET") },
+      );
+
+      this.emailService.sendEmail(newUser.email, token);
+
       return true;
     } catch (e) {
       console.log(e);
@@ -48,6 +69,7 @@ export class UsersService {
     return await this.userModel.findOne({ _id: id });
   }
   //! List of Users
+  @UseGuards(JwtAuthGuard)
   async getUsersService() {
     return await this.userModel.find();
   }

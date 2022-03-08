@@ -12,7 +12,7 @@ import { AuthResolver } from "./auth.resolve";
     UsersModule,
     JwtModule.registerAsync({
       useFactory: async (configservice: ConfigService) => ({
-        secretOrKeyProvider: configservice.get("SECRET"),
+        secret: configservice.get("SECRET"),
         signOptions: {
           expiresIn: configservice.get("JWT_EXPIRATION_TIME"),
         },
@@ -25,5 +25,6 @@ import { AuthResolver } from "./auth.resolve";
 
   controllers: [AuthController],
   providers: [AuthService, JwtModule, AuthResolver],
+  exports: [AuthService],
 })
 export class AuthModule {}

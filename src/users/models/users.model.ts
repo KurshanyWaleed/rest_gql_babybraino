@@ -10,6 +10,7 @@ export const UserSchema = new mongoose.Schema(
     babyGender: { type: String, required: true, enum: BabyGender },
     location: { type: String, required: true },
     password: { type: String, required: true },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
@@ -32,4 +33,6 @@ export class User {
   location: string;
 
   password: string;
+
+  verified: false;
 }

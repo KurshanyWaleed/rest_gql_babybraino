@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from "./guards/auth.guard";
 import { LogInDto } from "src/users/models/userDto";
 import { Resolver, Mutation, Args } from "@nestjs/graphql";
 
