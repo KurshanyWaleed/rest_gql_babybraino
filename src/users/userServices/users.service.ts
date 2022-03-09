@@ -1,6 +1,4 @@
-import { AuthService } from "./../../auth/auth.service";
 import { JwtService } from "@nestjs/jwt";
-
 import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "./../../auth/guards/auth.guard";
 import { Model } from "mongoose";
@@ -17,6 +15,7 @@ import { User } from "../models/users.model";
 import * as bcrypt from "bcrypt";
 
 import { EmailService } from "./email.service";
+import { Exception } from "handlebars/runtime";
 
 @Injectable()
 export class UsersService {
@@ -31,7 +30,7 @@ export class UsersService {
   async ProfilVerified(token: string) {
     const decoded = await this.jwtserv.verify(token);
 
-    return this.userModel.updateOne(
+    return await this.userModel.updateOne(
       { userName: decoded.username },
       { verified: true },
     );
@@ -53,7 +52,7 @@ export class UsersService {
         { secret: this.configservice.get("SECRET") },
       );
 
-      this.emailService.sendEmail(newUser.email, token);
+      // this.emailService.sendEmail(newUser.email, token);
 
       return true;
     } catch (e) {

@@ -16,5 +16,5 @@ registerEnumType(Situation, {
 });
 
 registerEnumType(BabyGender, {
-  name: "BabyGenderQL",
+  name: "BabyGender",
 });

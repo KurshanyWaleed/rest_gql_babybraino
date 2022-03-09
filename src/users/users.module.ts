@@ -12,6 +12,7 @@ import { JwtModule } from "@nestjs/jwt";
 
 import { EmailService } from "./userServices/email.service";
 import { ConfigService } from "@nestjs/config";
+import { MulterModule } from "@nestjs/platform-express";
 
 @Module({
   imports: [

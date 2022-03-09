@@ -1,5 +1,4 @@
 import { inscriptionDto } from "./models/userDto";
-import { LogInDto } from "src/users/models/userDto";
 import { UsersService } from "src/users/userServices/users.service";
 import { Args, Mutation, Query } from "@nestjs/graphql";
 import { Resolver } from "@nestjs/graphql";

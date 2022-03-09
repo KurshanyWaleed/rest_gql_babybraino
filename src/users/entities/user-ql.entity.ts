@@ -19,4 +19,6 @@ export class UserQl {
   location: String;
   @Field(() => Boolean)
   verified: boolean;
+  @Field(() => Boolean)
+  photoProfile: boolean;
 }

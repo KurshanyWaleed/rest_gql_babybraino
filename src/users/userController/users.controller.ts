@@ -12,7 +12,10 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
@@ -20,6 +23,8 @@ import { BabyGenderPipe, StatusPipe } from "src/pipes/customPipes";
 import { JwtAuthGuard } from "src/auth/guards/auth.guard";
 import { User } from "../models/users.model";
 import { Model } from "mongoose";
+import { FilesInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
 
 @Controller("users")
 export class UsersController {
@@ -27,6 +32,15 @@ export class UsersController {
     private readonly userServ: UsersService,
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
+
+  @Post("upload")
+  @UseInterceptors(FilesInterceptor("photoProfile"))
+  uploadFile(@UploadedFiles() file: Express.Multer.File) {
+    const { fieldname, originalname } = file[0];
+    const response = { fieldname, originalname };
+    console.log(response);
+    return response;
+  }
 
   @Post("signUp")
   @UsePipes(ValidationPipe)
@@ -63,8 +77,13 @@ export class UsersController {
   }
   @Get("confirm/:token")
   async confirmation(@Param("token") token: string) {
-    const hasBeenVerified = this.userServ.ProfilVerified(token);
-    return hasBeenVerified ? { acount_verified: true } : null;
+    try {
+      const hasBeenVerified = await this.userServ.ProfilVerified(token);
+      return hasBeenVerified;
+    } catch (e) {
+      throw new BadRequestException(e);
+    }
+    // ? { acount_verified: hasBeenVerified } : null;
   }
 
   @Get(":id")
