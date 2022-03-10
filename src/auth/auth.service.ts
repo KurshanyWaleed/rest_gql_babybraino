@@ -1,5 +1,5 @@
 import { ConfigService } from "@nestjs/config";
-import { UsersService } from "src/users/userServices/users.service";
+import { UsersService } from "src/users/users.service";
 import {
   BadRequestException,
   Injectable,

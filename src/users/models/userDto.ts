@@ -1,6 +1,7 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsEmail, IsEmpty, IsNotEmpty, Length } from "class-validator";
 import { BabyGender, Situation } from "src/utils/enums";
+import { Upload } from "src/utils/scalar";
 
 @InputType()
 export class RefreshTokenDto {
@@ -18,6 +19,31 @@ export class LogInDto {
   @Length(6)
   password: string;
 }
+
+@InputType()
+export class UploadUserProfilePicInput {
+  @Field()
+  file: Upload;
+}
+// @InputType()
+// export class UploadUserProfilePicInput {
+//   @Field(() => Upload)
+//   file: Upload;
+//   @Field(() => String)
+//   userName: string;
+// }
+@ObjectType("UserUploadProfilePicType")
+export class UserUploadProfilePicType {
+  @Field()
+  success: boolean;
+}
+// @InputType()
+// export class UploadProfilPhoto {
+//   @Field(() => String)
+//   file: string;
+//   @Field(() => String)
+//   userName: string;
+// }
 
 @InputType()
 export class inscriptionDto {

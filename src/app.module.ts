@@ -4,15 +4,13 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { UsersModule } from "./users/users.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { ApolloDriver } from "@nestjs/apollo";
 
 import { join } from "path";
 import { UserResolver } from "./users/user.resolver";
-import { MulterModule } from "@nestjs/platform-express";
 
 @Module({
   imports: [
-    MulterModule.register({ dest: "./uploads" }),
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), "src/user-schema.gql"),
       driver: ApolloDriver,

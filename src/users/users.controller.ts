@@ -1,6 +1,7 @@
+import { intFileName } from "../utils/filename_inter";
+import { extname, join } from "path";
 import { InjectModel } from "@nestjs/mongoose";
-import { inscriptionDto, upadatePasswordDto } from "./../models/userDto";
-import { UsersService } from "./../userServices/users.service";
+import { inscriptionDto, upadatePasswordDto } from "./models/userDto";
 
 import {
   BadRequestException,
@@ -12,8 +13,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -21,10 +22,11 @@ import {
 } from "@nestjs/common";
 import { BabyGenderPipe, StatusPipe } from "src/pipes/customPipes";
 import { JwtAuthGuard } from "src/auth/guards/auth.guard";
-import { User } from "../models/users.model";
+import { User } from "./models/users.model";
 import { Model } from "mongoose";
-import { FilesInterceptor } from "@nestjs/platform-express";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
+import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
@@ -34,12 +36,19 @@ export class UsersController {
   ) {}
 
   @Post("upload")
-  @UseInterceptors(FilesInterceptor("photoProfile"))
-  uploadFile(@UploadedFiles() file: Express.Multer.File) {
-    const { fieldname, originalname } = file[0];
-    const response = { fieldname, originalname };
-    console.log(response);
-    return response;
+  @UseInterceptors(
+    FileInterceptor("photoProfile", {
+      storage: diskStorage({
+        destination: "./uploads",
+        filename: intFileName,
+      }),
+    }),
+  )
+  async uploadFile(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+    return await this.userServ.updateUserProfile(
+      req.body.userName,
+      file.filename,
+    );
   }
 
   @Post("signUp")

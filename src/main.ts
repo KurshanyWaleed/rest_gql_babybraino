@@ -7,8 +7,8 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
   await app.listen(app.get(ConfigService).get("PORT"), "0.0.0.0");
 
-  console.log(`Application is running on:
-   ==> http://localhost:${app.get(ConfigService).get("PORT")}/users`);
+  console.log(`Application's baseUrl:
+   ==> http://localhost:${app.get(ConfigService).get("PORT")}/`);
   console.log();
 }
 bootstrap();

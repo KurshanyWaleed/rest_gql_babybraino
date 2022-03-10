@@ -2,6 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserUploadProfilePicType {
+  success: Boolean!
+}
+
 type SignInresult {
   access_token: String!
   refresh_token: String!
@@ -36,6 +40,7 @@ type Query {
 
 type Mutation {
   signUp(inputData: inscriptionDto!): Boolean!
+  uploadProfilePic(UploadUserProfilePicInput: UploadUserProfilePicInput!): UserUploadProfilePicType!
   signIn(login: LogInDto!): SignInresult!
 }
 
@@ -50,6 +55,13 @@ input inscriptionDto {
   photoProfile: String!
   verified: String!
 }
+
+input UploadUserProfilePicInput {
+  file: Upload!
+}
+
+"""File upload scalar type"""
+scalar Upload
 
 input LogInDto {
   userName: String!

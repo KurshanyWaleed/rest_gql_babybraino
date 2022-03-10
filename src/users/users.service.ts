@@ -1,9 +1,9 @@
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
-import { JwtAuthGuard } from "./../../auth/guards/auth.guard";
+import { JwtAuthGuard } from "../auth/guards/auth.guard";
 import { Model } from "mongoose";
-import { inscriptionDto, upadatePasswordDto } from "./../models/userDto";
-import { UserRepository } from "./../userRepository/user.repository";
+import { inscriptionDto, upadatePasswordDto } from "./models/userDto";
+import { UserRepository } from "./user.repository";
 import {
   BadRequestException,
   ConflictException,
@@ -11,10 +11,9 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { User } from "../models/users.model";
+import { User } from "./models/users.model";
 import * as bcrypt from "bcrypt";
 
-import { EmailService } from "./email.service";
 import { Exception } from "handlebars/runtime";
 
 @Injectable()
@@ -23,9 +22,17 @@ export class UsersService {
     private readonly configservice: ConfigService,
     private readonly jwtserv: JwtService,
     private readonly userRepo: UserRepository,
-    private emailService: EmailService,
+
     @InjectModel("User") private readonly userModel: Model<User>,
   ) {}
+
+  async updateUserProfile(userName: string, photoProfile: string) {
+    try {
+      await this.userModel.findOneAndUpdate({ userName }, { photoProfile });
+    } catch (e) {
+      throw new Exception(e);
+    }
+  }
   //!conformation
   async ProfilVerified(token: string) {
     const decoded = await this.jwtserv.verify(token);

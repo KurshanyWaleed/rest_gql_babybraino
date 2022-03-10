@@ -1,21 +1,28 @@
 import { MailerModule } from "@nestjs-modules/mailer";
 import { JwtStrategy } from "./../auth/strategies/jwt.strategy";
 import { AuthModule } from "./../auth/auth.module";
-import { UsersService } from "src/users/userServices/users.service";
+import { UsersService } from "src/users/users.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { forwardRef, Module } from "@nestjs/common";
-import { UsersController } from "./userController/users.controller";
+import { UsersController } from "./users.controller";
 import { User, UserSchema } from "src/users/models/users.model";
-import { UserRepository } from "./userRepository/user.repository";
+import { UserRepository } from "./user.repository";
 import { UserResolver } from "./user.resolver";
 import { JwtModule } from "@nestjs/jwt";
 
-import { EmailService } from "./userServices/email.service";
+import { EmailService } from "./user.mail.confi.service";
 import { ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
+import { Upload } from "src/utils/scalar";
 
 @Module({
   imports: [
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        dest: "./uploads",
+      }),
+    }),
+
     forwardRef(() => AuthModule),
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
@@ -42,6 +49,7 @@ import { MulterModule } from "@nestjs/platform-express";
     }),
   ],
   providers: [
+    Upload,
     UsersService,
     UserRepository,
     JwtStrategy,

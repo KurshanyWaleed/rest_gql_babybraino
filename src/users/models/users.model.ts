@@ -11,7 +11,7 @@ export const UserSchema = new mongoose.Schema(
     location: { type: String, required: true },
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
-    photoProfile: { type: String, required: false },
+    photoProfile: { type: String, required: false, default: "" },
   },
   { timestamps: true },
 );
