@@ -27,11 +27,11 @@ import { Upload } from "src/utils/scalar";
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: config.get("EMAIL_HOST"),
-          secure: false,
+          host: "smtp.ethereal.email",
+          port: 587,
           auth: {
-            user: config.get("EMAIL_USER"),
-            pass: config.get("EMAIL_PASSWORD"),
+            user: "constance.connelly32@ethereal.email",
+            pass: "wEdcXm9NJa3cbWujzS",
           },
         },
       }),

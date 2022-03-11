@@ -2,12 +2,15 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "../auth/guards/auth.guard";
 import { Model } from "mongoose";
-import { inscriptionDto, upadatePasswordDto } from "./models/userDto";
+import {
+  ConfirmEmailToUpadatePasswordDto,
+  inscriptionDto,
+} from "./models/userDto";
 import { UserRepository } from "./user.repository";
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
@@ -15,6 +18,7 @@ import { User } from "./models/users.model";
 import * as bcrypt from "bcrypt";
 
 import { Exception } from "handlebars/runtime";
+import { EmailService } from "./user.mail.confi.service";
 
 @Injectable()
 export class UsersService {
@@ -22,6 +26,7 @@ export class UsersService {
     private readonly configservice: ConfigService,
     private readonly jwtserv: JwtService,
     private readonly userRepo: UserRepository,
+    private readonly emailService: EmailService,
 
     @InjectModel("User") private readonly userModel: Model<User>,
   ) {}
@@ -33,7 +38,7 @@ export class UsersService {
       throw new Exception(e);
     }
   }
-  //!conformation
+  //! Profile conformation
   async ProfilVerified(token: string) {
     const decoded = await this.jwtserv.verify(token);
 
@@ -42,6 +47,30 @@ export class UsersService {
       { verified: true },
     );
   }
+  //todo update Fields in One Service !
+  async updateAttributeService(email: string, attributes: any) {
+    if (!(attributes.password == undefined)) {
+      try {
+        return await this.userModel.findOneAndUpdate(
+          { email },
+          {
+            ...attributes,
+            password: await bcrypt.hash(
+              attributes.password,
+              parseInt(this.configservice.get<string>("SALT_OR_ROUNDS")),
+            ),
+          },
+        );
+      } catch (e) {
+        throw new ConflictException(
+          `${Object.keys(e.keyValue)} is already exist !`,
+        );
+      }
+    } else {
+      return await this.userModel.findOneAndUpdate({ email }, attributes);
+    }
+  }
+
   //! sign Up
   async signUpUserService(userDto: inscriptionDto) {
     const hashedpassword = await bcrypt.hash(
@@ -59,9 +88,9 @@ export class UsersService {
         { secret: this.configservice.get("SECRET") },
       );
 
-      // this.emailService.sendEmail(newUser.email, token);
+      return await this.emailService.sendEmail(newUser.email, token);
 
-      return true;
+      // return true;
     } catch (e) {
       console.log(e);
       throw new ConflictException(
@@ -87,20 +116,22 @@ export class UsersService {
   async getUserByUserNameService(userName: string) {
     return this.userRepo.findUserByUsername(userName);
   }
+  // !!!!!!
+  async forgettenPasswordService(
+    token: any,
+    inputEmail: ConfirmEmailToUpadatePasswordDto,
+  ) {
+    const decoded = await this.jwtserv.verify(token);
+    console.log(decoded.sub);
 
-  async updatepassService(userid: string, newpassword: upadatePasswordDto) {
-    let user = await this.userModel.findById(userid);
-    if (user) {
-      let passwordaderd = await bcrypt.hash(
-        newpassword.password,
-        this.configservice.get<number>("SALT_OR_ROUNDS"),
-      );
-      return await this.userModel.updateOne(
-        { _id: userid },
-        { password: passwordaderd },
+    let user = await this.userModel.findOne({ _id: decoded.sub });
+    if (user.email == inputEmail.email) {
+      return await this.emailService.sendEmailForPasswordForgetten(
+        user.email,
+        token,
       );
     } else {
-      throw new BadRequestException("somthing went wrong ! ");
+      throw new NotFoundException(`this ${inputEmail.email} is not exist ! `);
     }
   }
 }

@@ -83,10 +83,9 @@ export class inscriptionDto {
   @IsEmpty()
   verified: string;
 }
-export class upadatePasswordDto {
+export class ConfirmEmailToUpadatePasswordDto {
   @IsNotEmpty()
-  @Length(6)
-  password: string;
+  email: string;
 }
 @ObjectType()
 export class SignInresult {

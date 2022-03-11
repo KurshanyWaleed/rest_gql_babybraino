@@ -8,7 +8,7 @@ async function bootstrap() {
   await app.listen(app.get(ConfigService).get("PORT"), "0.0.0.0");
 
   console.log(`Application's baseUrl:
-   ==> http://localhost:${app.get(ConfigService).get("PORT")}/`);
+   ==> http://localhost:${app.get(ConfigService).get("PORT")}/api/`);
   console.log();
 }
 bootstrap();

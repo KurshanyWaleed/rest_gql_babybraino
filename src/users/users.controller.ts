@@ -1,7 +1,10 @@
+import { Exception } from "handlebars/runtime";
 import { intFileName } from "../utils/filename_inter";
-import { extname, join } from "path";
 import { InjectModel } from "@nestjs/mongoose";
-import { inscriptionDto, upadatePasswordDto } from "./models/userDto";
+import {
+  ConfirmEmailToUpadatePasswordDto,
+  inscriptionDto,
+} from "./models/userDto";
 
 import {
   BadRequestException,
@@ -20,6 +23,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
+import { Request } from "express";
 import { BabyGenderPipe, StatusPipe } from "src/pipes/customPipes";
 import { JwtAuthGuard } from "src/auth/guards/auth.guard";
 import { User } from "./models/users.model";
@@ -36,6 +40,7 @@ export class UsersController {
   ) {}
 
   @Post("upload")
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor("photoProfile", {
       storage: diskStorage({
@@ -67,28 +72,25 @@ export class UsersController {
       return await this.userServ.getUsersService();
     }
   }
+  //!forgetten password
+
+  @Post("/forgetPassword")
   @UsePipes(ValidationPipe)
-  @Put(":id/updating")
-  async updatePassword(
-    @Param("id")
-    userId: string,
-    @Body() password: upadatePasswordDto,
+  @UseGuards(JwtAuthGuard)
+  async updatePasswordByEmail(
+    @Req() req: Request,
+    @Body() inputEmail: ConfirmEmailToUpadatePasswordDto,
   ) {
-    let updated = await this.userServ.updatepassService(userId, password);
-    if (updated) {
-      return {
-        statusCode: HttpStatus.ACCEPTED,
-        messages: ["Password has been succesfully !"],
-      };
-    } else {
-      new BadRequestException();
-    }
+    return await this.userServ.forgettenPasswordService(
+      req.header("authorization").split(" ")[1],
+      inputEmail,
+    );
   }
   @Get("confirm/:token")
   async confirmation(@Param("token") token: string) {
     try {
       const hasBeenVerified = await this.userServ.ProfilVerified(token);
-      return hasBeenVerified;
+      return hasBeenVerified ? { seccess: true } : { seccess: false };
     } catch (e) {
       throw new BadRequestException(e);
     }
@@ -98,5 +100,19 @@ export class UsersController {
   @Get(":id")
   async getUserById(@Param("id") id: string) {
     return await this.userModel.findById({ _id: id });
+  }
+
+  //!upddate 1 in all
+  @Put(":email/updating")
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @UsePipes(new StatusPipe())
+  @UsePipes(new BabyGenderPipe())
+  upadateAttribute(@Body() attributes: any, @Param("email") email: string) {
+    if (attributes) {
+      return this.userServ.updateAttributeService(email, attributes);
+    } else {
+      throw new Exception(`${attributes} is empty or not valid !`);
+    }
   }
 }

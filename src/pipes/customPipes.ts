@@ -1,3 +1,4 @@
+import { Situation, BabyGender } from "./../utils/enums";
 /*
 
 https://docs.nestjs.com/pipes
@@ -10,7 +11,6 @@ import {
   ArgumentMetadata,
   BadRequestException,
 } from "@nestjs/common";
-import { BabyGender, Situation } from "src/utils/enums";
 
 ////!
 /// ! this Pipe handls babyGender value
@@ -19,10 +19,14 @@ import { BabyGender, Situation } from "src/utils/enums";
 export class BabyGenderPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     console.log(value);
-    if (!(value.babyGender in BabyGender)) {
-      throw new BadRequestException(
-        `${value.babyGender} is Invalid baby Gender value ! `,
-      );
+    if (value.babyGender) {
+      if (!(value.babyGender in BabyGender)) {
+        throw new BadRequestException(
+          `${value.babyGender} is Invalid baby Gender value ! `,
+        );
+      } else {
+        return value;
+      }
     } else {
       return value;
     }
@@ -36,10 +40,14 @@ export class BabyGenderPipe implements PipeTransform {
 export class StatusPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     console.log(value);
-    if (!(value.situation in Situation)) {
-      throw new BadRequestException(
-        `${value.situation} is  Invalid situation value ! `,
-      );
+    if (value.situation) {
+      if (!(value.situation in Situation)) {
+        throw new BadRequestException(
+          `${value.situation} is  Invalid situation value ! `,
+        );
+      } else {
+        return value;
+      }
     } else {
       return value;
     }
