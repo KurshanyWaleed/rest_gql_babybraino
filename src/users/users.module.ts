@@ -14,6 +14,7 @@ import { EmailService } from "./user.mail.confi.service";
 import { ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { Upload } from "src/utils/scalar";
+import { Analyse } from "./token_analyse";
 
 @Module({
   imports: [
@@ -30,8 +31,8 @@ import { Upload } from "src/utils/scalar";
           host: "smtp.ethereal.email",
           port: 587,
           auth: {
-            user: "constance.connelly32@ethereal.email",
-            pass: "wEdcXm9NJa3cbWujzS",
+            user: "jayde.balistreri42@ethereal.email",
+            pass: "6A6pAsksSef7acuTqk",
           },
         },
       }),
@@ -55,6 +56,7 @@ import { Upload } from "src/utils/scalar";
     JwtStrategy,
     UserResolver,
     EmailService,
+    Analyse,
   ],
   controllers: [UsersController],
   exports: [UsersService],

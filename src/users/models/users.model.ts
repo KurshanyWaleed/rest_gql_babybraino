@@ -12,6 +12,7 @@ export const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     verified: { type: Boolean, default: false },
     photoProfile: { type: String, required: false, default: "" },
+    ableToChangePassword: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
@@ -35,7 +36,9 @@ export class User {
 
   password: string;
 
-  verified: false;
+  verified: Boolean;
 
-  photoProfile: "";
+  photoProfile: String;
+
+  ableToChangePassword: Boolean;
 }

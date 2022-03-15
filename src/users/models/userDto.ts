@@ -82,6 +82,10 @@ export class inscriptionDto {
   @Field(() => String)
   @IsEmpty()
   verified: string;
+
+  @Field(() => String)
+  @IsEmpty()
+  ableToChangePassword;
 }
 export class ConfirmEmailToUpadatePasswordDto {
   @IsNotEmpty()

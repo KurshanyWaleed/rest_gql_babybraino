@@ -54,6 +54,7 @@ input inscriptionDto {
   email: String!
   photoProfile: String!
   verified: String!
+  ableToChangePassword: String!
 }
 
 input UploadUserProfilePicInput {

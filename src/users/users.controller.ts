@@ -1,4 +1,5 @@
-import { Exception } from "handlebars/runtime";
+import { Analyse } from "./token_analyse";
+
 import { intFileName } from "../utils/filename_inter";
 import { InjectModel } from "@nestjs/mongoose";
 import {
@@ -11,7 +12,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -23,6 +23,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
+
 import { Request } from "express";
 import { BabyGenderPipe, StatusPipe } from "src/pipes/customPipes";
 import { JwtAuthGuard } from "src/auth/guards/auth.guard";
@@ -31,11 +32,13 @@ import { Model } from "mongoose";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { UsersService } from "./users.service";
+import { Exception } from "handlebars/runtime";
 
 @Controller("users")
 export class UsersController {
   constructor(
     private readonly userServ: UsersService,
+    private readonly tikenAnlyse: Analyse,
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
@@ -72,20 +75,46 @@ export class UsersController {
       return await this.userServ.getUsersService();
     }
   }
-  //!forgetten password
+  //!forgetten password 1
 
   @Post("/forgetPassword")
   @UsePipes(ValidationPipe)
-  @UseGuards(JwtAuthGuard)
   async updatePasswordByEmail(
-    @Req() req: Request,
     @Body() inputEmail: ConfirmEmailToUpadatePasswordDto,
   ) {
-    return await this.userServ.forgettenPasswordService(
-      req.header("authorization").split(" ")[1],
-      inputEmail,
-    );
+    return await this.userServ.changePassService(inputEmail);
   }
+
+  ///! forgetten password step 4
+  @Put(":token/New-Password")
+  async updatePasswordAfterForgetten(
+    @Param("token") token: string,
+    @Body() attributes: any,
+  ) {
+    try {
+      this.tikenAnlyse.isValidToken(token);
+      const result = await this.userServ.updateAttributeService(
+        token,
+        attributes,
+      );
+      if (result) {
+        return { result };
+      }
+    } catch (e) {
+      return new Exception(e);
+      //return new Exception("something went wrong maybe the token is not valid");
+    }
+  }
+
+  ///! forgetten password step 3
+  @Get(":token/updating-Password")
+  upadatePass(@Param("token") token: string) {
+    this.userServ.updateAttributeService(token, {
+      ableToChangePassword: true,
+    });
+    return { success: true };
+  }
+
   @Get("confirm/:token")
   async confirmation(@Param("token") token: string) {
     try {
@@ -94,7 +123,6 @@ export class UsersController {
     } catch (e) {
       throw new BadRequestException(e);
     }
-    // ? { acount_verified: hasBeenVerified } : null;
   }
 
   @Get(":id")
@@ -103,16 +131,23 @@ export class UsersController {
   }
 
   //!upddate 1 in all
-  @Put(":email/updating")
+  ///! forgetten password step 4 and others
+  @Put("/updating")
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @UsePipes(new StatusPipe())
   @UsePipes(new BabyGenderPipe())
-  upadateAttribute(@Body() attributes: any, @Param("email") email: string) {
-    if (attributes) {
-      return this.userServ.updateAttributeService(email, attributes);
-    } else {
-      throw new Exception(`${attributes} is empty or not valid !`);
+  async upadateAttribute(@Body() attributes: any, @Req() req: Request) {
+    try {
+      const token = req.headers.authorization.split("")[1];
+      this.tikenAnlyse.isValidToken(token);
+      if (attributes) {
+        return await this.userServ.updateAttributeService(token, attributes);
+      } else {
+        return new Error(`${attributes} is empty or not valid !`);
+      }
+    } catch (e) {
+      return new Exception("something went wrong maybe the token is not valid");
     }
   }
 }

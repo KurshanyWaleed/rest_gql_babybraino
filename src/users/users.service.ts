@@ -48,26 +48,42 @@ export class UsersService {
     );
   }
   //todo update Fields in One Service !
-  async updateAttributeService(email: string, attributes: any) {
-    if (!(attributes.password == undefined)) {
-      try {
-        return await this.userModel.findOneAndUpdate(
-          { email },
-          {
-            ...attributes,
-            password: await bcrypt.hash(
-              attributes.password,
-              parseInt(this.configservice.get<string>("SALT_OR_ROUNDS")),
-            ),
-          },
-        );
-      } catch (e) {
-        throw new ConflictException(
-          `${Object.keys(e.keyValue)} is already exist !`,
-        );
+  async updateAttributeService(token: string, attributes: any) {
+    try {
+      await this.jwtserv.verify(token);
+      const { sub } = await this.jwtserv.decode(token);
+
+      console.log(sub);
+      if (!(attributes.password == undefined)) {
+        try {
+          const user = await this.userModel.findById({ _id: sub });
+          if (user.ableToChangePassword == true) {
+            return await this.userModel.findOneAndUpdate(
+              { _id: sub },
+              {
+                ...attributes,
+                password: await bcrypt.hash(
+                  attributes.password,
+                  parseInt(this.configservice.get<string>("SALT_OR_ROUNDS")),
+                ),
+              },
+            );
+          } else {
+            return {
+              message:
+                "You dont have the permission yet, please check your email box ! ",
+            };
+          }
+        } catch (e) {
+          throw new ConflictException(
+            `${Object.keys(e.keyValue)} is already exist !`,
+          );
+        }
+      } else {
+        return await this.userModel.findOneAndUpdate({ _id: sub }, attributes);
       }
-    } else {
-      return await this.userModel.findOneAndUpdate({ email }, attributes);
+    } catch (e) {
+      throw new Exception(e);
     }
   }
 
@@ -117,21 +133,22 @@ export class UsersService {
     return this.userRepo.findUserByUsername(userName);
   }
   // !!!!!!
-  async forgettenPasswordService(
-    token: any,
-    inputEmail: ConfirmEmailToUpadatePasswordDto,
-  ) {
-    const decoded = await this.jwtserv.verify(token);
-    console.log(decoded.sub);
-
-    let user = await this.userModel.findOne({ _id: decoded.sub });
-    if (user.email == inputEmail.email) {
+  //: forgetten password step 1
+  async changePassService(inputEmail: ConfirmEmailToUpadatePasswordDto) {
+    const user = await this.userModel.findOne({ email: inputEmail.email });
+    if (user) {
+      const token = this.jwtserv.sign(
+        { username: user.userName, sub: user._id },
+        { secret: this.configservice.get("SECRET") },
+      );
       return await this.emailService.sendEmailForPasswordForgetten(
-        user.email,
+        inputEmail.email,
         token,
       );
     } else {
-      throw new NotFoundException(`this ${inputEmail.email} is not exist ! `);
+      throw new NotFoundException(
+        `this Email ${inputEmail.email} does not exist ! `,
+      );
     }
   }
 }
