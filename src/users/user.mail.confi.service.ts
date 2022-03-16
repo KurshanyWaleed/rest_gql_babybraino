@@ -1,6 +1,9 @@
 import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
-import { emailTemplate } from "src/utils/email";
+import {
+  emailTemplateConfirmAccount,
+  emailTemplateConfirmEmail,
+} from "src/utils/email";
 
 @Injectable()
 export class EmailService {
@@ -11,9 +14,7 @@ export class EmailService {
       from: "kurshany.waleed@gmail.com",
       to: email,
       subject: "Greeting from BabyBrains ",
-      html: `<b></b>
-      Please click this link below to COnfirm your account :D
-        <a href=${`http://localhost:3000/api/users/confirm/${token}`}/>${token}</a>`,
+      html: emailTemplateConfirmAccount(token),
     });
     return { message: "Your account added successfuly ! " };
   }
@@ -21,11 +22,12 @@ export class EmailService {
   async sendEmailForPasswordForgetten(email: string, token: string) {
     console.log(email);
     try {
-      const mailSent = await this.mailerService.sendMail({
+      await this.mailerService.sendMail({
         from: "kurshany.waleed@gmail.com",
         to: email,
         subject: "Forgetten Password ",
-        html: emailTemplate(token),
+
+        html: emailTemplateConfirmEmail(token),
       });
 
       return { message: "Please check your Email box !  ^^ " };
