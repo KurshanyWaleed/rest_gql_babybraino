@@ -126,7 +126,7 @@ export class UsersController {
   async confirmation(@Param("token") token: string) {
     try {
       const hasBeenVerified = await this.userServ.ProfilVerified(token);
-      return hasBeenVerified ? { seccess: true } : { seccess: false };
+      return hasBeenVerified ? { seccess: true } : { success: false };
     } catch (e) {
       throw new BadRequestException(e);
     }
