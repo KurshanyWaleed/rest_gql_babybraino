@@ -1,3 +1,4 @@
+import { UserType } from "./../../utils/enums";
 import * as mongoose from "mongoose";
 import { BabyGender, Situation } from "src/utils/enums";
 
@@ -13,6 +14,7 @@ export const UserSchema = new mongoose.Schema(
     verified: { type: Boolean, default: false },
     photoProfile: { type: String, required: false, default: "" },
     ableToChangePassword: { type: Boolean, default: false },
+    role: { type: String, default: UserType.USER, enum: UserType },
   },
   { timestamps: true },
 );
@@ -41,4 +43,6 @@ export class User {
   photoProfile: String;
 
   ableToChangePassword: Boolean;
+
+  role: UserType;
 }

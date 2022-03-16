@@ -6,6 +6,10 @@ export enum Situation {
   PARENT_AND_EXPECTANT_NEW_BABY = "PARENT_AND_EXPECTANT_NEW_BABY",
 }
 
+export enum UserType {
+  ADMIN = "ADMIN",
+  USER = "USER",
+}
 export enum BabyGender {
   BOY = "BOY",
   GIRL = "GIRL",
@@ -13,6 +17,10 @@ export enum BabyGender {
 
 registerEnumType(Situation, {
   name: "Situation",
+});
+
+registerEnumType(UserType, {
+  name: "UserType",
 });
 
 registerEnumType(BabyGender, {

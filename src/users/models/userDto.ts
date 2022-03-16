@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
 import { IsEmail, IsEmpty, IsNotEmpty, Length } from "class-validator";
-import { BabyGender, Situation } from "src/utils/enums";
+import { BabyGender, Situation, UserType } from "src/utils/enums";
 import { Upload } from "src/utils/scalar";
 
 @InputType()
@@ -86,6 +86,9 @@ export class inscriptionDto {
   @Field(() => String)
   @IsEmpty()
   ableToChangePassword;
+  @Field(() => UserType)
+  @IsEmpty()
+  role: UserType;
 }
 export class ConfirmEmailToUpadatePasswordDto {
   @IsNotEmpty()

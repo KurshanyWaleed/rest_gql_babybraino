@@ -28,11 +28,10 @@ import { Analyse } from "./token_analyse";
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
-          host: "smtp.ethereal.email",
-          port: 587,
+          service: "gmail",
           auth: {
-            user: "jayde.balistreri42@ethereal.email",
-            pass: "6A6pAsksSef7acuTqk",
+            user: config.get<string>("EMAIL"),
+            pass: config.get("PASS"),
           },
         },
       }),

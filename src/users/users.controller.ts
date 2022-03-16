@@ -11,6 +11,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -64,6 +65,12 @@ export class UsersController {
   @UsePipes(new StatusPipe(), new BabyGenderPipe())
   async signUp(@Body() userDto: inscriptionDto) {
     return await this.userServ.signUpUserService(userDto);
+  }
+
+  @Delete("this/:id/deleting")
+  removeUser(@Param("id") _id: string) {
+    const result = this.userServ.removeUser(_id);
+    return { result };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -147,7 +154,7 @@ export class UsersController {
         return new Error(`${attributes} is empty or not valid !`);
       }
     } catch (e) {
-      return new Exception("something went wrong maybe the token is not valid");
+      return new Exception("Something went wrong maybe the token is not valid");
     }
   }
 }

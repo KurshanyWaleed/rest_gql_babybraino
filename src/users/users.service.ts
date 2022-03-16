@@ -9,8 +9,10 @@ import {
 import { UserRepository } from "./user.repository";
 import {
   ConflictException,
+  Delete,
   Injectable,
   NotFoundException,
+  Param,
   UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
@@ -110,7 +112,7 @@ export class UsersService {
     } catch (e) {
       console.log(e);
       throw new ConflictException(
-        ` this ${Object.keys(e.keyValue)} is already exist ! `,
+        ` This ${Object.keys(e.keyValue)} is already exist ! `,
       );
     }
   }
@@ -147,8 +149,11 @@ export class UsersService {
       );
     } else {
       throw new NotFoundException(
-        `this Email ${inputEmail.email} does not exist ! `,
+        `This Email ${inputEmail.email} does not exist ! `,
       );
     }
+  }
+  async removeUser(_id: string) {
+    return await this.userModel.deleteOne({ _id });
   }
 }

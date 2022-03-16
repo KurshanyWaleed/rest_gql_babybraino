@@ -32,6 +32,7 @@
     "@nestjs/mongoose": "^9.0.2",
     "@nestjs/passport": "^8.2.1",
     "@nestjs/platform-express": "^8.0.0",
+    "@sendinblue/client": "^3.1.0",
     "@types/ioredis": "^4.28.8",
     "@types/passport-local": "^1.0.34",
     "apollo-server-express": "^3.6.3",

@@ -21,6 +21,8 @@ type UserQl {
   location: String!
   verified: Boolean!
   photoProfile: Boolean!
+  ableToChangePassword: String!
+  role: UserType!
 }
 
 enum BabyGender {
@@ -32,6 +34,11 @@ enum Situation {
   EXPECTANT_NEW_BABY
   PERENT
   PARENT_AND_EXPECTANT_NEW_BABY
+}
+
+enum UserType {
+  ADMIN
+  USER
 }
 
 type Query {
@@ -55,6 +62,7 @@ input inscriptionDto {
   photoProfile: String!
   verified: String!
   ableToChangePassword: String!
+  role: UserType!
 }
 
 input UploadUserProfilePicInput {
