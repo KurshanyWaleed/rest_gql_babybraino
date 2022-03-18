@@ -76,8 +76,7 @@ export class UsersService {
             return { success: true };
           } else {
             return {
-              message:
-                "You dont have the permission yet, please check your email box ! ",
+              message: "Permission Denied ",
             };
           }
         } catch (e) {
@@ -133,7 +132,7 @@ export class UsersService {
         inputEmail.email,
         token,
       );
-      return { "permisson-token": token };
+      return { permissionsToken: token };
     } else {
       throw new NotFoundException(
         `This Email ${inputEmail.email} does not exist ! `,

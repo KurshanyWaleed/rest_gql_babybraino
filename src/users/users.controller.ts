@@ -115,7 +115,6 @@ export class UsersController {
   ///! forgetten password step 2
   @Get(":token/updating-Password-permission")
   upadatePass(@Param("token") token: string) {
-    console.log("ffffffffffffffff");
     return this.userServ.updateAttributeService(token, {
       ableToChangePassword: true,
     });
