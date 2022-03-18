@@ -54,14 +54,16 @@ export class UsersService {
   async updateAttributeService(token: string, attributes: any) {
     try {
       await this.jwtserv.verify(token);
-      const { sub } = this.jwtserv.decode(token);
-
-      console.log(sub);
+      const user = this.jwtserv.decode(token);
+      const { sub } = user;
+      console.log("here  sub : " + sub);
+      console.log("here  user : " + { user });
       if (!(attributes.password == undefined)) {
+        // if password existe :
         try {
           const user = await this.userModel.findById({ _id: sub });
           if (user.ableToChangePassword == true) {
-            return await this.userModel.findOneAndUpdate(
+            await this.userModel.findOneAndUpdate(
               { _id: sub },
               {
                 ...attributes,
@@ -71,6 +73,7 @@ export class UsersService {
                 ),
               },
             );
+            return { success: true };
           } else {
             return {
               message:
@@ -83,7 +86,9 @@ export class UsersService {
           );
         }
       } else {
-        return await this.userModel.findOneAndUpdate({ _id: sub }, attributes);
+        console.log("here is it ");
+        await this.userModel.findOneAndUpdate({ _id: sub }, attributes);
+        return { success: true };
       }
     } catch (e) {
       throw new Exception(e);
@@ -107,7 +112,7 @@ export class UsersService {
         { secret: this.configservice.get("SECRET") },
       );
 
-      //  return await this.emailService.sendEmail(newUser.email, token);
+      await this.emailService.sendEmail(newUser.email, token);
       this.fromClient.emit(NEW_INSCRIPTION, newUser);
     } catch (e) {
       console.log(e);
@@ -116,26 +121,7 @@ export class UsersService {
       );
     }
   }
-  //!  One User list
-  @UseGuards(JwtAuthGuard)
-  async getUserService(id: string) {
-    return await this.userModel.findOne({ _id: id });
-  }
-  //! List of Users
-  @UseGuards(JwtAuthGuard)
-  async getUsersService() {
-    return await this.userModel.find();
-  }
-  //!  by Location
-  async getUserByLocationService(location: string) {
-    return this.userRepo.findUserByLocation(location);
-  }
-  //!  by userName
-  async getUserByUserNameService(userName: string) {
-    return this.userRepo.findUserByUsername(userName);
-  }
-  // !!!!!!
-  //: forgetten password step 1
+
   async changePassService(inputEmail: ConfirmEmailToUpadatePasswordDto) {
     const user = await this.userModel.findOne({ email: inputEmail.email });
     if (user) {
@@ -147,7 +133,7 @@ export class UsersService {
         inputEmail.email,
         token,
       );
-      return { token: token };
+      return { "permisson-token": token };
     } else {
       throw new NotFoundException(
         `This Email ${inputEmail.email} does not exist ! `,
@@ -171,4 +157,24 @@ export class UsersService {
       return new Error(e);
     }
   }
+  //-------------------------------------------------------------------------------------------------------
+  //!  One User list
+
+  async getUserService(id: string) {
+    return await this.userModel.findOne({ _id: id });
+  }
+  //! List of Users
+
+  async getUsersService() {
+    return await this.userModel.find();
+  }
+  //!  by Location
+  async getUserByLocationService(location: string) {
+    return this.userRepo.findUserByLocation(location);
+  }
+  //!  by userName
+  async getUserByUserNameService(userName: string) {
+    return this.userRepo.findUserByUsername(userName);
+  }
+  // !!!!!!
 }

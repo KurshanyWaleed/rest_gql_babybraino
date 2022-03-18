@@ -1,7 +1,7 @@
 import { MailerService } from "@nestjs-modules/mailer";
 import { Injectable } from "@nestjs/common";
 import {
-  emailTemplateConfirmAccount,
+  emailTemplateConfirmAcount,
   emailTemplateConfirmEmail,
 } from "src/utils/email";
 
@@ -13,8 +13,8 @@ export class EmailService {
     await this.mailerService.sendMail({
       from: "kurshany.waleed@gmail.com",
       to: email,
-      subject: "Greeting from BabyBraino | account COnfirmation ",
-      html: emailTemplateConfirmAccount(token),
+      subject: "Greeting from BabyBraino | Account Confirmation ",
+      html: emailTemplateConfirmAcount(token),
     });
     return { message: "Your account added successfuly ! " };
   }
