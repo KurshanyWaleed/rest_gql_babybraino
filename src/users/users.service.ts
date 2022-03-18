@@ -9,10 +9,9 @@ import {
 import { UserRepository } from "./user.repository";
 import {
   ConflictException,
-  Delete,
+  Inject,
   Injectable,
   NotFoundException,
-  Param,
   UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
@@ -21,6 +20,8 @@ import * as bcrypt from "bcrypt";
 
 import { Exception } from "handlebars/runtime";
 import { EmailService } from "./user.mail.confi.service";
+import { ClientProxy } from "@nestjs/microservices";
+import { NEW_INSCRIPTION, USER_HAS_BEEN_DELETED } from "src/utils/constantes";
 
 @Injectable()
 export class UsersService {
@@ -29,7 +30,7 @@ export class UsersService {
     private readonly jwtserv: JwtService,
     private readonly userRepo: UserRepository,
     private readonly emailService: EmailService,
-
+    @Inject("USER_SERVICES") private readonly fromClient: ClientProxy,
     @InjectModel("User") private readonly userModel: Model<User>,
   ) {}
 
@@ -53,7 +54,7 @@ export class UsersService {
   async updateAttributeService(token: string, attributes: any) {
     try {
       await this.jwtserv.verify(token);
-      const { sub } = await this.jwtserv.decode(token);
+      const { sub } = this.jwtserv.decode(token);
 
       console.log(sub);
       if (!(attributes.password == undefined)) {
@@ -106,9 +107,8 @@ export class UsersService {
         { secret: this.configservice.get("SECRET") },
       );
 
-      return await this.emailService.sendEmail(newUser.email, token);
-
-      // return true;
+      //  return await this.emailService.sendEmail(newUser.email, token);
+      this.fromClient.emit(NEW_INSCRIPTION, newUser);
     } catch (e) {
       console.log(e);
       throw new ConflictException(
@@ -143,10 +143,11 @@ export class UsersService {
         { username: user.userName, sub: user._id },
         { secret: this.configservice.get("SECRET") },
       );
-      return await this.emailService.sendEmailForPasswordForgetten(
+      await this.emailService.sendEmailForPasswordForgetten(
         inputEmail.email,
         token,
       );
+      return { token: token };
     } else {
       throw new NotFoundException(
         `This Email ${inputEmail.email} does not exist ! `,
@@ -154,6 +155,20 @@ export class UsersService {
     }
   }
   async removeUser(_id: string) {
-    return await this.userModel.deleteOne({ _id });
+    try {
+      const user = await this.userModel.findById({ _id });
+      if (user) {
+        await this.userModel.deleteOne({ _id });
+        this.fromClient.emit(USER_HAS_BEEN_DELETED, {
+          messege: "the user has been deleted",
+        });
+        return { message: `Account has been deleted!` };
+      } else {
+        console.log();
+        return { message: `This id ${_id} does not exist ! ` };
+      }
+    } catch (e) {
+      return new Error(e);
+    }
   }
 }

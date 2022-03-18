@@ -68,9 +68,8 @@ export class UsersController {
   }
 
   @Delete("this/:id/deleting")
-  removeUser(@Param("id") _id: string) {
-    const result = this.userServ.removeUser(_id);
-    return { result };
+  async removeUser(@Param("id") _id: string) {
+    return { result: await this.userServ.removeUser(_id) };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -114,7 +113,7 @@ export class UsersController {
   }
 
   ///! forgetten password step 3
-  @Get(":token/updating-Password")
+  @Get(":token/updating-Password-permission")
   upadatePass(@Param("token") token: string) {
     this.userServ.updateAttributeService(token, {
       ableToChangePassword: true,

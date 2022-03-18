@@ -9,15 +9,48 @@ import { User, UserSchema } from "src/users/models/users.model";
 import { UserRepository } from "./user.repository";
 import { UserResolver } from "./user.resolver";
 import { JwtModule } from "@nestjs/jwt";
-
 import { EmailService } from "./user.mail.confi.service";
-import { ConfigService } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { Upload } from "src/utils/scalar";
 import { Analyse } from "./token_analyse";
+import { ClientsModule, Transport } from "@nestjs/microservices";
+import { MAIN_QUEUE, USER_SERVICES } from "src/utils/constantes";
+
+const option = {
+  useFactory: async (config: ConfigService) => ({
+    name: "USER_SERVICESS",
+    transport: Transport.RMQ,
+    options: {
+      name: "USER_SERVICESS",
+      urls: [await config.get("RQ_SERVER")],
+      queue: MAIN_QUEUE,
+      queueOptions: {
+        durable: false,
+      },
+    },
+  }),
+};
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ClientsModule.registerAsync([
+      {
+        name: USER_SERVICES,
+        useFactory: async (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.get<string>("RQ_SERVER")],
+            queue: MAIN_QUEUE,
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
     MulterModule.registerAsync({
       useFactory: () => ({
         dest: "./uploads",

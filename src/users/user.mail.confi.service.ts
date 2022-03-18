@@ -13,7 +13,7 @@ export class EmailService {
     await this.mailerService.sendMail({
       from: "kurshany.waleed@gmail.com",
       to: email,
-      subject: "Greeting from BabyBrains ",
+      subject: "Greeting from BabyBraino | account COnfirmation ",
       html: emailTemplateConfirmAccount(token),
     });
     return { message: "Your account added successfuly ! " };
@@ -25,12 +25,12 @@ export class EmailService {
       await this.mailerService.sendMail({
         from: "kurshany.waleed@gmail.com",
         to: email,
-        subject: "Forgetten Password ",
+        subject: "Greeting from BabyBraino | Forgetten Password ",
 
         html: emailTemplateConfirmEmail(token),
       });
 
-      return { message: "Please check your Email box !  ^^ " };
+      return { message: "Please check your Email box !" };
     } catch (e) {
       return e;
     }

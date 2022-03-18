@@ -5,7 +5,6 @@ import { Injectable } from "@nestjs/common";
 export class Analyse {
   constructor(private readonly jwtServ: JwtService) {}
   isValidToken(token: string) {
-    console.log("gggggggggg");
     try {
       const valid = this.jwtServ.verify(token);
       return valid;
