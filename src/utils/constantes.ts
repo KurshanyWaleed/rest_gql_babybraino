@@ -2,3 +2,4 @@ export const USER_HAS_BEEN_DELETED = "USER_HAS_BEEN_DELETED";
 export const NEW_INSCRIPTION = "NEW_INSCRIPTION";
 export const MAIN_QUEUE = "MAIN_QUEUE";
 export const USER_SERVICES = "USER_SERVICES";
+export const TEST = "TEST";

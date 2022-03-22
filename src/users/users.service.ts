@@ -12,7 +12,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UseGuards,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User } from "./models/users.model";
@@ -21,7 +20,11 @@ import * as bcrypt from "bcrypt";
 import { Exception } from "handlebars/runtime";
 import { EmailService } from "./user.mail.confi.service";
 import { ClientProxy } from "@nestjs/microservices";
-import { NEW_INSCRIPTION, USER_HAS_BEEN_DELETED } from "src/utils/constantes";
+import {
+  NEW_INSCRIPTION,
+  USER_HAS_BEEN_DELETED,
+  USER_SERVICES,
+} from "src/utils/constantes";
 
 @Injectable()
 export class UsersService {
@@ -30,9 +33,20 @@ export class UsersService {
     private readonly jwtserv: JwtService,
     private readonly userRepo: UserRepository,
     private readonly emailService: EmailService,
-    @Inject("USER_SERVICES") private readonly fromClient: ClientProxy,
+    @Inject(USER_SERVICES) private readonly fromClient: ClientProxy,
     @InjectModel("User") private readonly userModel: Model<User>,
   ) {}
+
+  async refreshServices(token: string) {
+    await this.jwtserv.verify(token);
+    const { sub } = this.jwtserv.decode(token);
+    const user = await this.userModel.findOne({ _id: sub });
+    if (user.ableToChangePassword == true) {
+      return { permission: true };
+    } else {
+      return { permission: false };
+    }
+  }
 
   async updateUserProfile(userName: string, photoProfile: string) {
     try {
@@ -56,8 +70,6 @@ export class UsersService {
       await this.jwtserv.verify(token);
       const user = this.jwtserv.decode(token);
       const { sub } = user;
-      console.log("here  sub : " + sub);
-      console.log("here  user : " + { user });
       if (!(attributes.password == undefined)) {
         // if password existe :
         try {

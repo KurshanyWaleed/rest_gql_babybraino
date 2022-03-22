@@ -3,7 +3,7 @@ import { JwtStrategy } from "./../auth/strategies/jwt.strategy";
 import { AuthModule } from "./../auth/auth.module";
 import { UsersService } from "src/users/users.service";
 import { MongooseModule } from "@nestjs/mongoose";
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, HttpModule, Module } from "@nestjs/common";
 import { UsersController } from "./users.controller";
 import { User, UserSchema } from "src/users/models/users.model";
 import { UserRepository } from "./user.repository";
@@ -34,6 +34,7 @@ const option = {
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ClientsModule.registerAsync([
       {

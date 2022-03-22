@@ -34,6 +34,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { UsersService } from "./users.service";
 import { Exception } from "handlebars/runtime";
+import { blockParams } from "handlebars";
 
 @Controller("users")
 export class UsersController {
@@ -42,7 +43,9 @@ export class UsersController {
     private readonly tikenAnlyse: Analyse,
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
+  //*--------------------------------
 
+  //*--------------------------------
   @Post("upload")
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
@@ -72,7 +75,6 @@ export class UsersController {
     return { result: await this.userServ.removeUser(_id) };
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async getAllUsers(@Query("location") location: string) {
     if (location) {
@@ -113,6 +115,7 @@ export class UsersController {
   }
 
   ///! forgetten password step 2
+  //when i clicked the button in the email
   @Get(":token/updating-Password-permission")
   upadatePass(@Param("token") token: string) {
     return this.userServ.updateAttributeService(token, {
@@ -128,6 +131,11 @@ export class UsersController {
     } catch (e) {
       throw new BadRequestException(e);
     }
+  }
+  ///! forgetten password step 3
+  @Get(":token/refresh")
+  refresh(@Param("token") token: string) {
+    return this.userServ.refreshServices(token);
   }
 
   @Get(":id")
